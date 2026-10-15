@@ -6,7 +6,7 @@ import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import CloudIcon from "@mui/icons-material/Cloud";
 import axios from "axios";
-import moment from "moment"
+import moment from "moment";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -15,10 +15,9 @@ moment.locale("en");
 
 function App() {
   let cancelAxios = null;
-  
-  const {t , i18n} = useTranslation()
-  
-  
+
+  const { t, i18n } = useTranslation();
+
   const [temperature, setTemperature] = useState({
     temp: null,
     max: null,
@@ -26,20 +25,22 @@ function App() {
     description: null,
     icon: null,
   });
-  
-  const [timeAndDate, setTimeAndDate] = useState(moment().locale("en").format('MMMM, Do, YYYY, h:mm a'))
-  
-  
+
+  const [timeAndDate, setTimeAndDate] = useState(
+    moment().locale("en").format("MMMM, Do, YYYY, h:mm a"),
+  );
+
+	const [direction, setDirection] = useState("ltr")
+
   useEffect(() => {
-    
     axios
-    .get(
-      "https://api.openweathermap.org/data/2.5/weather?lat=36.2012&lon=37.1612&appid=aafea430cc010feaf8a0660e076ed55a",
-      {
-        cancelToken: new axios.CancelToken((c) => {
-          cancelAxios = c;
-        }),
-      },
+      .get(
+        "https://api.openweathermap.org/data/2.5/weather?lat=36.2012&lon=37.1612&appid=aafea430cc010feaf8a0660e076ed55a",
+        {
+          cancelToken: new axios.CancelToken((c) => {
+            cancelAxios = c;
+          }),
+        },
         {
           params: {
             postId: 5,
@@ -52,8 +53,7 @@ function App() {
         const min = Math.round(response.data.main.temp_min - 272.15);
         const description = response.data.weather[0].description;
         const responeIcon = response.data.weather[0].icon;
-        
-				
+
         setTemperature({
           temp,
           max,
@@ -65,33 +65,32 @@ function App() {
       .catch((error) => {
         console.error(error);
       });
-      
-      return () => {
-        cancelAxios();
-      };
-    }, []);
-    
-    const theme = createTheme({
-      typography: {
-        fontFamily: ["Cairo"],
-      },
-    });
-    
-    
-    
-    function hanldeChangeLanguage() {
-      if(i18n.language == 'en') {
-        i18n.changeLanguage('ar')
-        setTimeAndDate(moment().locale("ar").format('MMMM, Do, YYYY, h:mm a'))
 
-      }else {
-        i18n.changeLanguage('en')
-        setTimeAndDate(moment().locale("en").format('MMMM, Do, YYYY, h:mm a'))
-      }
+    return () => {
+      cancelAxios();
+    };
+  }, []);
+
+  const theme = createTheme({
+    typography: {
+      fontFamily: ["Cairo"],
+    },
+  });
+
+  function hanldeChangeLanguage() {
+    if (i18n.language == "en") {
+      i18n.changeLanguage("ar");
+      setTimeAndDate(moment().locale("ar").format("MMMM, Do, YYYY, h:mm a"));
+			setDirection("rtl")
+    } else {
+      i18n.changeLanguage("en");
+      setTimeAndDate(moment().locale("en").format("MMMM, Do, YYYY, h:mm a"));
+						setDirection("ltr")
+
     }
+  }
 
-
-    return (
+  return (
     <ThemeProvider theme={theme}>
       <Container maxWidth="sm">
         {/* CONTENT CONTAINER */}
@@ -103,10 +102,10 @@ function App() {
             alignItems: "center",
             flexDirection: "column",
           }}
-          >
+        >
           {/* CARD */}
           <Box
-            dir="rtl"
+            dir={direction}
             style={{
               width: "100%",
               background: "rgb(28 52 91 / 36%)",
@@ -115,7 +114,7 @@ function App() {
               borderRadius: "15px",
               boxShadow: "0px 11px 1px rgba(0,0,0,0.05)",
             }}
-            >
+          >
             {/* CONTENT */}
             <Box>
               {/* CITY & TIME */}
@@ -125,7 +124,7 @@ function App() {
                   alignItems: "end",
                   justifyContent: "start",
                 }}
-                dir="rtl"
+                dir={direction}
               >
                 <Typography
                   variant="h2"
@@ -138,7 +137,7 @@ function App() {
                 </Typography>
 
                 <Typography variant="h5" style={{ marginRight: "20px" }}>
-										{timeAndDate}
+                  {timeAndDate}
                 </Typography>
               </Box>
               {/* == CITY & TIME == */}
@@ -153,18 +152,26 @@ function App() {
                 }}
               >
                 {/* DEGREE & DESCRIPTION */}
-                <Box >
+                <Box>
                   {/* TEMP */}
-                  <Box sx={{display:"flex", justifyContent:"space-between", alignItems:"center"}}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                    }}
+                  >
                     <Typography variant="h1" style={{ textAlign: "right" }}>
-                      {temperature.temp}
+                    {temperature.temp}°
                     </Typography>
 
                     <img src={temperature.icon} alt="weather icon" />
                   </Box>
                   {/*== TEMP ==*/}
 
-                  <Typography variant="h6">{t(temperature.description)}</Typography>
+                  <Typography variant="h6">
+                    {t(temperature.description)}
+                  </Typography>
 
                   {/* MIN & MAX */}
                   <Box
@@ -174,9 +181,15 @@ function App() {
                       alignItems: "center",
                     }}
                   >
-                    <h5>{t("min")} : {temperature.max}</h5>
-                    <h5 style={{ margin: "0px 5px" }}>|</h5>
-                    <h5>{t("max")} : {temperature.min}</h5>
+                    <Typography variant="h5" sx={{fontSize:"18px"}}>
+                      {t("min")} : {temperature.max}
+                    </Typography>
+                    <Typography variant="h5" style={{ margin: "0px 5px" }}>
+                      |
+                    </Typography>
+                    <Typography variant="h5" sx={{fontSize:"18px"}}>
+                      {t("max")} : {temperature.min}
+                    </Typography>
                   </Box>
                 </Box>
                 {/*== DEGREE & DESCRIPTION ==*/}
@@ -204,7 +217,11 @@ function App() {
               marginTop: "20px",
             }}
           >
-            <Button onClick={hanldeChangeLanguage} style={{ color: "white" }} variant="text">
+            <Button
+              onClick={hanldeChangeLanguage}
+              style={{ color: "white" }}
+              variant="text"
+            >
               {t("Arabic")}
             </Button>
           </Box>
